@@ -1,0 +1,42 @@
+﻿@{
+    Layout = "_Layout";
+}
+
+
+
+<div class="full-Width header-like background-darkBlue-1" style="border-top:2px solid orange">
+    <p></p>
+    <nav class="nav-link" style="margin-top:0;">
+        <ul>
+            <li><form class="full-Width" asp-action="RoomListByDepartment" method="post">
+                <select class="full-Width ff f-16 background-darkBlue foreground-white" style="" onchange="this.form.submit()" name="departmentid">
+                    <option value="" disabled selected hidden>@ViewBag.SelectedDepartment</option>
+                    @foreach (Department d in ViewBag.Department)
+                    {
+                        <option value="@d.DepartmentID" type="submit">@d.DepartmentName</option>
+                    }
+                </select>
+                </form>
+            </li>
+            <li><a class="btn foreground-white  ff f-16" asp-controller="Room" asp-action="CreateRoom">Opret Lokale</a></li>
+        </ul>
+    </nav>
+    <p></p>
+</div>
+
+<div>
+    <div class="pagetitle" style="margin:auto; margin-top:3em; width:50em;">
+        <h1 class="ff f-36">Lokale oversigt</h1>
+    </div>
+
+    // Thomas
+
+    <div  class="flex flex-center" style="margin-top: 3em;">
+        @foreach (Room r in ViewBag.Room)
+        {
+            <div class="mar-5">
+                <partial name="RoomPartialview" model="r" />
+            </div>
+        }
+    </div>
+</div>

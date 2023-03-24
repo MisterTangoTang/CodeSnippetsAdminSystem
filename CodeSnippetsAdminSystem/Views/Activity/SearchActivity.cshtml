@@ -1,0 +1,102 @@
+﻿@{
+    Layout = "_Layout";
+}
+@model IQueryable<Activity>
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+
+<div class="Flex vertical full-Width center-all mar-10" >
+    <!--Input field for searching-->
+    <div style="margin-bottom:2em;">
+        <button id="btnSearch" style="border-radius: 10px;" class="full-Width btn background-darkBlue foreground-white" onclick="SearchMenu()">Luk-Søgning</button>
+        <div id="searchMenu"  class="flex " style="justify-content:center; display:inline;">
+            <div class="w-300 shadow-s pad-5" style="padding-left:25px;padding-right:25px;border-radius: 10px;">
+                <form asp-action="SearchActivity" method="post" id="form">
+                    <h1 class="ff txt-center border-bottom-1-black">Søg Aktivitet</h1>
+                    <div>
+                        <span style="color:red;">@ViewBag.ErrorOnDepartment</span>
+                        <select class="background-transparant txt-even ff f-16" style="padding-bottom:8px; margin-top:1em;" name="DepartmentID" id="input" required>
+                            <option value="@ViewBag.DepartmentID" hidden selected>@ViewBag.SelectedDepartment</option>
+                            @foreach (Department d in ViewBag.Departments)
+                            {
+                                <option value="@d.DepartmentID">@d.DepartmentName</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="user-box" style="width:290px;margin-top:30px;">
+                        <input class="input" type="text" name="Title" value="@ViewBag.Title" autocomplete="off" placeholder=" " />
+                        <label class="placeholder">Emne</label>
+                    </div>
+
+                    <div class="user-box" style="width:290px;margin-top:5px;">
+                        <input class="input" type="text" name="ByWhom" value="@ViewBag.ByWhom" autocomplete="off" placeholder=" " />
+                        <label class="placeholder">Arrangør</label>
+                    </div>
+
+                    <input class="txt-even ff cursor-p" style="margin-top:1em;" name="SelectedDate" id="date" type="date" value="@ViewBag.SelectedDate" />
+                    <br/>
+                    <br/>
+                    <button onclick="RemoveAttr()" class="btn btn-background-darkBlue full-Width" style="margin-bottom: 10px; margin-top:10px;" type="submit">Søg</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        var menuElement = document.getElementById('searchMenu');
+        var btnElemnt = document.getElementById('btnSearch');
+
+
+        var IsShowing = true;
+        function SearchMenu(){
+            if(IsShowing){
+                menuElement.style.display ="none";
+                btnElemnt.innerHTML = "Åben-Søgning"
+                IsShowing = false;
+            }else{
+                menuElement.style.display ="inherit";
+                btnElemnt.innerHTML = "Luk-Søgning";
+                IsShowing = true;
+            }
+        }
+    </script>
+
+    @if (Model != null)
+    {
+        <table class="tableView pad-5 mar-10" style="border-collapse: collapse;">
+            <thead class="background-darkBlue foreground-white">
+                <tr>
+                    <th>Title + Arrangør(er)</th>
+                    <th>Tidspunkt + Dato</th>
+                    <th>Afdeling + Lokale</th>
+                    <th>Status</th>
+                    <th>Rediger</th>
+                    <th>Slet</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (Activity a in Model.OrderBy(a => a.date))
+                {
+                    <partial name="ActivitySearchPartialview" model="a" />
+                }
+            </tbody>
+        </table>
+    }
+
+    @ViewBag.ErrorOnBool
+
+</div>
+
+
+<script> // opens calender no matter where you click in the input field.
+
+    document.getElementById("date").addEventListener('focus', function (event) {
+        event.target.showPicker();
+    });
+
+</script>

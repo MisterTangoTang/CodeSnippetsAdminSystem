@@ -1,0 +1,29 @@
+﻿@model AdministrationSystem.Eamv.Models.Room
+@{
+    Layout = "_Layout";
+}
+
+<div class="container background-container-white shadow-s pad-5 ">
+    <h1>Opret Lokale</h1>
+    <form asp-action="CreateRoom" method="post" class="m-2">
+
+        <div class="user-box" style="margin-top:40px;">
+            <input class="input" type="text" asp-for="RoomName" autocomplete="off" placeholder=" " required/>
+            <label class="placeholder">Lokalenavn*</label>
+        </div>
+
+        // Thomas
+
+        <select class="ff f-16 txt-even background-transparant"  asp-for="@Model.Department.DepartmentID" required>
+            <option value="" disabled selected hidden>Vælg afdeling</option>
+            @foreach (Department d in ViewBag.Department)
+            {
+                <option value="@d.DepartmentID" type="submit">@d.DepartmentName</option>
+            }
+        </select>
+        <br />
+        <br />
+        <button class="btn ff f-16 btn-background-darkBlue full-Width h-40" style="margin-bottom:10px;margin-top:15px;" type="submit">@(Model != null ? "Gem" : "Opret")</button>
+
+    </form>
+</div>

@@ -1,0 +1,392 @@
+﻿@{
+    Layout = "_Layout";
+}
+@model Activity
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="\lib\Datepicker.css">
+    <link rel="stylesheet" type="text/css" href="~/lib/CheckBox.css">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/css/bootstrap-datepicker3.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+
+<div class="btn-round shadow-s container background-darkBlue pad-5" style="background-color:#FAFAFA; margin-top: 25px;">
+    <h1 class="foreground-black ff ">@(Model != null && Model.Activityid != 0 ? "Ændre Aktivitet" : "Opret Aktivitet")</h1>
+    <form class="full-Width " asp-action="CreateActivity" method="post">
+        <span onclick="hideShow('activity', 'room')" class="btn foreground-black full-Width center-all border-bottom-1" >Aktiviteter</span>
+        <br />
+        <div id="activity" style="display:inline;">
+            @if (Model != null)
+            {
+                <div>
+                    <input type="hidden" asp-for="Activityid" readonly>
+                </div>
+
+                <input name="returnURL" type="hidden" value="@ViewBag.ReturnUrl" /> <!-- returnURL -->
+            }
+            <div>
+                <span asp-validation-for="Title"></span>
+
+                <div class="user-box" style="width:310px;margin-top:20px;margin-bottom:5px;">
+                    <input style="z-index:1;" class="input" type="text" asp-for="Title" autocomplete="off" placeholder=" " required />
+                    <label class="placeholder">Emne*</label>
+                </div>
+
+
+                <div class="user-box" style="width:310px;margin-top:6px;">
+                    <input class="input" type="text" asp-for="ByWhom" autocomplete="off" placeholder=" " />
+                    <label class="placeholder">Arrangør</label>
+                </div>
+
+            </div>
+            <br />
+            @if (Model == null)
+            {
+                <div style="margin-bottom:5px;">
+                    <label class="checkbox-container ff">
+                        Opret aktivitet med flere datoer
+                        <input type="checkbox" id="isMoreDates" onchange="this.value=this.checked">
+                        <span class="checkmark"></span>
+                    </label>
+                </div>
+            }
+            <label class="foreground-black f-13 headliner">Dato*</label>
+            <div class="input-group date full-Width" id="datepicker"> 
+                <input type="text" autocomplete="off" style="padding-right:28px;width:292px" class="background-transparant foreground-black txt-even full-Width cursor-p" id="moreDates" name="moreDates" onkeypress="return false;" placeholder="dd-mm-åååå - vælg flere dage" required />
+                <span class="input-group-addon" style="display: none;"><i class="glyphicon glyphicon-calendar"></i><span class="count"></span></span>
+                <img src="/Img/Calender.png" class="absolute imgover cursor-p" id="imgcalender" style="position:absolute; top:0.6em; left:18.6em; height:15px; width:auto;" />
+            </div>
+
+            <div id="SingleDate">
+                <input class="background-transparant foreground-black txt-even cursor-p" name="date" asp-for="date" value="@(Model != null ? Model.date.ToString("yyyy-MM-dd") : @ViewBag.ReturnDate)" id="SingleDateInput" type="date" min="@DateTime.Today.ToString("yyyy-MM-dd")" required>
+            </div>
+            <!--Containing Start and end time-->
+            <span asp-validation-for="StartTime"></span>
+            <br />
+            <div>
+                <!--Holding Times-->
+                <label style="color:red;margin-left:4.5em;font-weight:bold;" id="timeError"></label>
+                <div>
+                    <div style="margin-left:20px;">
+                        <label class="foreground-black headliner" style="margin-right:4.5em;">Starttidspunkt*</label>
+                        <label class="foreground-black headliner" style="margin-left:0.4em;">Sluttidspunkt*</label>
+                    </div>
+                    <div  style="display:flex; flex-direction:row;">
+                        <input class="background-transparant  border-bottom-1-black-thin w-100" style="margin-left:1.2em;" id="startTime" asp-for="StartTime" type="time" required>
+                        <input class="background-transparant  border-bottom-1-black-thin w-100" style="margin-left:4.5em;" onchange="return validateTime()" id="endTime" asp-for="EndTime" type="time" required>
+                    </div>
+                </div>
+                <span asp-validation-for="EndTime"></span>
+            </div> 
+            <br />
+            <br />
+            <label class="foreground-black headliner ">Afdeling*</label>
+            <div>
+                <select class="ff f-16 txt-even background-transparant" asp-for="Department.DepartmentID" id="input" required>
+                    @foreach (Department d in ViewBag.Departments)
+                    {
+                        <option value="@d.DepartmentID">@d.DepartmentName</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <br />
+        <br />
+        <label style="color:red;font-weight: bold;" id="roomError"></label>
+        <span onclick="hideShow('room','activity')" class="full-Width btn foreground-black center-all border-bottom-1" >Lokale valg</span>
+        <div id="room" class="full-Width" style="display:none;">
+            <br />
+            <label class="headliner">Lokale(r)*</label>
+            <select style="margin-top:14px;font-size:16px;" class="full-Width background-transparant h-250" onclick="validateRooms()" id="output" multiple required></select>
+            <input name="roomids" id="outputv2" onchange="validateRooms()" type="hidden" required />
+        </div>
+        <br />
+        <br />
+        <button class="btn btn-background-darkBlue full-Width ff f-22" style="margin-bottom:10px;" onclick="return validateSubmit()" type="submit">@(Model != null ? "Gem" : "Opret")</button>
+    </form>
+</div>
+
+<script>
+    document.getElementById("imgcalender").addEventListener("click", () => {
+        document.getElementById("moreDates").focus();
+    });
+
+    document.getElementById("imgcalender").addEventListener("mouseover", () => {
+        document.getElementById("moreDates").style.borderBottom = "1px solid #FFA500";
+    });
+    document.getElementById("imgcalender").addEventListener("mouseleave", () => {
+        document.getElementById("moreDates").style.borderBottom = "1px solid #000000";
+    });
+
+    document.getElementById("moreDates").addEventListener("mouseover", () => {
+        document.getElementById("moreDates").style.borderBottom = "1px solid #FFA500";
+    });
+
+    document.getElementById("moreDates").addEventListener("mouseleave", () => {
+
+        const doc = document.getElementById("moreDates");
+        var isFocused = (document.activeElement === doc);
+        if (!isFocused)
+            document.getElementById("moreDates").style.borderBottom = "1px solid #000000";
+    });
+
+    document.getElementById("moreDates").addEventListener("focus", (event) => {
+        document.getElementById("moreDates").style.borderBottom = "1px solid #FFA500";
+    });
+
+    document.addEventListener('click', function () {
+        const doc = document.getElementById("moreDates");
+        var isFocused = (document.activeElement === doc);
+        if (!isFocused)
+            document.getElementById("moreDates").style.borderBottom = "1px solid #000000";
+    });
+
+</script>
+
+<script>
+    document.getElementById("SingleDateInput").addEventListener('focus', function (event) {
+        event.target.showPicker();
+    });
+</script>
+
+<script>
+    function hideShow(show, hide){
+        document.getElementById(hide).style.display = 'none';
+        document.getElementById(show).style.display = 'inline';
+    }
+</script>
+
+<script>
+    $(document).ready(function () {
+        $.fn.datepicker.dates['dk'] = {
+            days: ["Søndag", "Mandag", "Tirsdag", "Onsdag", "Torsdag", "Fredag", "Lørdag"],
+            daysShort: ['søn', 'man', 'tir', 'ons', 'tor', 'fre', 'lør'],
+            daysMin: ['sø', 'ma', 'ti', 'on', 'to', 'fr', 'lø'],
+            months: ['januar', 'febuar', 'marts', 'april', 'maj', 'juni', 'juli', 'august', 'september', 'oktober', 'november', 'december'],
+            monthsShort: ['jan', 'feb', 'mar', 'apr', 'maj', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'],
+            today: "I dag",
+            clear: "Ryd"
+        };
+        $('#datepicker').datepicker({
+            language: 'dk',
+            title: 'Vælg flere dage til aktivitet',
+            startDate: new Date(),
+            multidate: true,
+            weekStart: 1,
+            clearBtn: true,
+            calendarWeeks: true,
+            daysOfWeekHighlighted: [0,6],
+            format: "dd/mm/yyyy"
+        }).on('changeDate', function (e) {
+            // `e` here contains the extra attributes
+            $(this).find('.input-group-addon .count').text(' ' + e.dates.length);
+        });
+    });
+</script>
+
+// Thomas
+
+<script type="text/javascript">
+    function SelectedData() {
+        var selectedValues = $('#output').val();
+        var values = '';
+        $.each(selectedValues, function (key, value) {
+            console.log(selectedValues);
+            values += value;
+            if (key != selectedValues.length - 1) {
+                values += ",";
+
+            }
+            console.log(values);
+        })
+        $("#outputv2").val(values);
+    }
+
+    let selectedRooms = @Html.Raw(Json.Serialize(ViewBag.SelectedRooms));
+
+    function passData() {
+        var departmentId = $('#input option:selected').val();
+        $.ajax({
+            type: 'GET',
+            data: { departmentId: departmentId },
+            url: '@Url.Action("LoadRooms", "Activity")',
+            success: function (result) {
+                var s = '<option value="" disabled selected hidden >Vælg lokale</option>';
+                
+
+                if (selectedRooms != null) {
+                    const myArray = selectedRooms.split(",");
+                    let created = false;
+
+
+                    for (var i = 0; i < result.length; i++) {
+                        created = false;
+                        for (var j = 0; j < myArray.length; j++) {
+
+
+                            if (result[i].id == myArray[j]) {
+                                s += '<option value="' + result[i].id + '" selected>' + result[i].name + '</option>';
+                                created = true;
+                            }
+                        }
+                        if (created != true) {
+                            s += '<option value="' + result[i].id + '">' + result[i].name + '</option>';
+
+                        }
+                    }
+                    $('#output').html(s);
+                } else {
+
+                    for (var i = 0; i < result.length; i++) {
+
+                        s += '<option value="' + result[i].id + '">' + result[i].name + '</option>';
+
+                    }
+                    $('#output').html(s);
+                }
+                SelectedData();
+            }
+        });
+    }
+
+    // Thomas
+
+    $(document).ready(function () {
+        passData();
+        $('#input').on('change', passData)
+        $('#input').on('change', SelectedData)
+
+        $('#output').mousedown(function (e) {
+
+            e.preventDefault();
+
+            var select = this;
+            var scroll = select.scrollTop;
+
+            e.target.selected = !e.target.selected;
+
+            setTimeout(function () { select.scrollTop = scroll; }, 0);
+            SelectedData();
+
+            $(select).focus();
+        }).mousemove(function (e) { e.preventDefault() });
+    });
+</script>
+
+
+// Thomas
+
+<script>
+    // Hides single or moredates depending on the check
+    $(document).ready(function () {
+        $('#isMoreDates').removeAttr('checked');
+        $('#moreDates').hide();
+        $('#datepicker').hide();
+        $('#moreDates').prop('required', false);
+        $('#isMoreDates').change(function () {
+            if (this.checked) {
+                $('#datepicker').show();
+                $('#moreDates').show();
+                $('#moreDates').prop('required', true); // TODO Reset selve dato-vælgeren ved flere dates
+                $('#SingleDate').hide();
+                $("#SingleDateInput").val("");
+                $('#SingleDateInput').prop('required', false);
+            } else {
+                $('#SingleDateInput').prop('required', true);
+                $('#SingleDate').show();
+
+                $('#datepicker').hide();
+                $('#datepicker').val("").datepicker("update");
+                $('#moreDates').hide();
+                $('#moreDates').val('');
+                $('#moreDates').prop('required', false);
+            }
+        });
+    });
+</script>
+
+// Thomas
+
+<script type="text/javascript">
+
+    function validateSubmit() {
+
+        var time = validateTime();
+        var rooms = validateRooms();
+
+        if (time === true && rooms === true) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+
+    // Thomas
+
+    function validateTime() {
+
+        startTime = $("#startTime").val();
+        endTime = $("#endTime").val();
+
+        if (startTime > endTime) {
+            $('#timeError').empty();
+            $('#timeError').append("Starttid skal være før sluttid");
+            console.log($('#timeError').text());
+            return false;
+        } else {
+            $('#timeError').empty();
+            return true;
+        }
+    }
+
+    // Thomas
+
+    function validateRooms() {
+        var any = validateAnyRoomsSelected();
+        var noR = validateNoRoomsSelected();
+
+        if (any === true && noR === false) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+
+    // Thomas
+
+    function validateAnyRoomsSelected() {
+        var rooms = $('#outputv2').val();
+
+        if (rooms === "") {
+            $('#roomError').empty();
+            $('#roomError').append("Vælg minimum ét lokale");
+            return false;
+        } else {
+            $('#roomError').empty();
+            return true;
+        }
+    }
+
+    // Thomas
+
+    let noRooms = @Html.Raw(Json.Serialize(ViewBag.NoRooms));
+
+    function validateNoRoomsSelected() {
+        const roomsArray = $("#outputv2").val().split(",");
+
+        for (var i = 0; i < roomsArray.length; i++) {
+            console.log(roomsArray[i] === noRooms + '' && 2 <= roomsArray.length);
+            if (roomsArray[i] === noRooms + '' && 2 <= roomsArray.length) {
+                $('#roomError').empty();
+                $('#roomError').append("Lokalet 'ingen' kan ikke kombineres med andre lokaler");
+                return true;
+            }
+        }
+        return false;
+    }
+</script>

@@ -1,0 +1,29 @@
+﻿@{
+    Layout = "_Layout";
+}
+@model IQueryable<Activity>
+
+<div class="container background-container-white shadow-s pad-5" >
+        <h1 class="ff txt-center border-bottom-1">Forhåndsvisning</h1>
+        <form asp-action="PreviewScreenPopUp" target="_blank" method="post">
+
+        <select class="txt-even ff f-16 background-transparant" name="DepartmentID" id="input" style="margin-bottom: 15px;" required>
+                @foreach (Department d in ViewBag.Departments)
+                {
+                    <option value="@d.DepartmentID">@d.DepartmentName</option>
+                }
+            </select>
+            <br />
+            <input class="txt-even cursor-p" id="date" name="SelectedDate" type="date" required />
+            <br />
+            <br />
+        <button class="btn ff btn-background-darkBlue  h-40 full-Width" style="margin-bottom:10px;margin-top:15px;" type="submit">Vis</button>
+        </form>
+</div>
+ 
+<script>
+    // opens calender no matter where you click in the input field.
+    document.getElementById("date").addEventListener('focus', function (event) {
+        event.target.showPicker();
+    });
+</script>

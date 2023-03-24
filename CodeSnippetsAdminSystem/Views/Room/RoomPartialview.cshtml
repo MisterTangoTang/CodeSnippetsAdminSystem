@@ -1,0 +1,40 @@
+﻿@model AdministrationSystem.Eamv.Models.Room
+
+<head>
+    <script src="https://unpkg.com/sweetalert2@7.1.3/dist/sweetalert2.all.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+
+<div class="vecform w-250 h-100 mar-5">
+
+    <label class="absolute foreground-white ff  f-22" style="bottom:5%; left:5%;" >@Model.RoomName</label>
+    <label class="absolute foreground-white ff f-36" style="top:5%; left:5%;">@Model.Department.DepartmentName</label>
+
+    <form  asp-action="DeleteRoom" method="post">
+        <input class ="absolute" type="hidden"  name="RoomID" value="@Model.RoomID" />
+        <button class="absolute transparant  pointer delete-confirm delete-confirm" style=" right:0%; bottom:3%;  width:20%; height:50%; border-top-left-radius:100%; " type="submit"></button>
+    </form>
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 208"><g id="Form"><path d="M357,207.83V208h87.27A35.73,35.73,0,0,0,480,172.27V85h-.17A148,148,0,0,1,467,109c-6.55,9.93-15.1,22.89-30,33-11.09,7.52-12.82,4.72-37,18-12.92,7.09-17.2,10.51-19,12-14.32,11.85-19.79,24.15-21,27A63,63,0,0,0,357,207.83Z" fill="#c6472a" /><path d="M480,24.15A24.15,24.15,0,0,0,455.85,0H24.15A24.15,24.15,0,0,0,0,24.15v159.7A24.15,24.15,0,0,0,24.15,208H350.24q3.4,0,6.76-.17A106.44,106.44,0,0,1,381,174c19.7-18.41,36.61-19.17,56-32,13.33-8.83,30.24-25,42.83-57q.17-3.36.17-6.76Z" fill="#2f3f55" /></g><g id="btn-delete"><text id="btn-slet" transform="translate(409.11 185.8)" font-size="21" fill="#fff" font-family="Monospace821BT-Bold, Monospac821 BT" font-weight="700">Slet</text><path d="M451,130c7.15-7.21,11.22-13.63,16-21a173.42,173.42,0,0,0,13-24V208H357a118.31,118.31,0,0,1,11-19c4.54-6.39,9.45-13.41,18-20,4.81-3.71,8.87-5.8,17-10,7.81-4,9.2-4.05,19-9,7.44-3.76,11.26-5.7,16-9A95.22,95.22,0,0,0,451,130Z" fill="#fff" opacity="0" /></g></svg>
+</div>
+
+<script>
+    $('.delete-confirm').on('click', function (e) {
+
+        e.preventDefault()
+
+        swal({
+            title: 'Bekræft',
+            text: 'Advarsel: Indholdet vil blive permanent slettet!',
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Slet',
+            confirmButtonColor: '#C6472A',
+            cancelButtonText: 'Fortryd'
+        }).then((result) => {
+            if (result.value) {
+                $(this).closest('form').submit();
+            }
+        });
+    });
+</script>

@@ -1,0 +1,206 @@
+﻿@model IQueryable<Activity>
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="/lib/StyleSheet.css" />
+</head>
+
+<style>
+
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+
+    .vecform {
+        position: relative;
+    }
+
+
+
+    .fixed {
+        position: fixed;
+    }
+
+    .absolute {
+        position: absolute;
+    }
+
+    .background-container {
+        background-color: #585552;
+    }
+
+
+    .background-red {
+        background-color: #861b2de6;
+    }
+
+    .background-blue {
+        background-color: rgba(37, 87, 152, 0.776);
+    }
+
+    .background-white {
+        background-color: #c8c8c8;
+    }
+
+    .background-darkBlue {
+        background-color: var(--navigation-bg);
+    }
+
+    .background-lightBlue {
+        background-color: rgba(255,255,255,1);
+    }
+
+    .background-2 {
+        background-color: #B2CFFA;
+    }
+
+    .background-transparant {
+        background-color: transparent;
+    }
+
+
+    .foreground-red {
+        color: red;
+    }
+
+
+    .ff {
+        font-family: 'Roboto Condensed', sans-serif;
+        margin: 1px;
+        padding: 0px;
+    }
+
+    .f-16 {
+        font-size: 16px;
+    }
+
+    .f-22 {
+        font-size: 22px;
+    }
+
+    .f-26 {
+        font-size: 26px;
+    }
+
+    .f-30 {
+        font-size: 30px;
+    }
+
+    .f-33 {
+        font-size: 33px;
+    }
+
+    .f-36 {
+        font-size: 36px;
+    }
+
+    .f-42 {
+        font-size: 42px;
+    }
+
+    .f-57 {
+        font-size: 57px;
+    }
+
+    .f-72 {
+        font-size: 72px;
+    }
+
+    .bold {
+        font-weight: bold;
+    }
+
+
+    .border-bottom {
+        border: none;
+        border-bottom: 1px solid orange;
+    }
+
+    .full-Width {
+        width: 100%;
+    }
+</style> <!--This is only here cuz something is broken in .css file-->
+
+<div class="full-Width" style="height:100%;">
+    <div class="vecform">
+        <h4 class="absolute ff f-26" style="font-weight:200;  left: 1.2em; top:0.6em;">Velkommen til</h4>
+        <h4 class="absolute ff f-30" style="left: 1em; top:1.5em; letter-spacing:0.5px;">Erhvervsakademi Midtvest</h4>
+        <button class="btn btn-background-delete f-26 absolute" style="right:2em; top:1em;" type="button" onclick="window.close();">Luk side X</button>
+
+        <div class="absolute ff f-72" style="right: .4em; top:0.1em;" id="time"></div> <!--Here Goes the Current Time-->
+        <div class="absolute ff f-26" style="right: 11.3em; top: 2em;" id="date"></div> <!--Here goes the current date-->
+
+        <div class="background-blue absolute" style="height: 0.3em; top: 5.5em; left: 1em; right:1.2em;"></div>
+
+
+        <div class="absolute full-Width" style="top:6.5em; justify-items: center;">
+            <div class="flex vertical">
+                @foreach (Activity item in Model.OrderBy(a => a.StartTime))
+                {
+                    <div class="border-bottom full-Width" style="margin-top:0.2em;  @(item.IsCancelled? "color:red; " : "color:black;")">
+                            <div class="vecform" style="padding:0.3em;">
+                                <p class="ff f-57 " style="padding-right:1em; margin-left:0.48em;">@item.StartTime - @item.EndTime</p>
+                                <div>
+                                    <p class="absolute ff f-33 bold" style="top:04%; left:11.5em; font-weight:500;">@item.Title</p>
+                                    <p class="absolute ff f-22" style="bottom:05%; left:17.3em; ">
+                                        @foreach (ActivityRoom a in item.Rooms)
+                                        {
+                                            @if (a.room.RoomName.Equals("Ingen"))
+                                            {
+                                                @("")
+                                            }
+                                            else if (item.Rooms.Count == 1)
+                                            {
+                                                @("Lokale: ")
+                                            }
+                                            else
+                                            {
+                                                @("Lokaler: ")
+                                                break;
+                                            }
+                                        }
+                                        @foreach (ActivityRoom a in item.Rooms)
+                                        {
+                                            @(item.Rooms.Count == 1 || item.Rooms.IndexOf(a) == item.Rooms.Count - 1 ? (a.room.RoomName.Equals("Ingen") ? "" : (a.room.RoomName + (item.ByWhom == null ? "" : " - "))) : a.room.RoomName + " & ")
+                                        }
+                                        @(item.ByWhom != null ? "Arrangør: " + item.ByWhom : "")
+                                    </p>
+                                    @if (item.IsCancelled)
+                                    {
+                                        <p class="absolute ff f-42 foreground-red" style="right:1em; top:18%; text-decoration:underline;">AFLYST</p>
+                                    }
+                                <form asp-action="CancelActivity" asp-controller="Activity" method="post" class="absolute ff f-36  form" style="right:5em; top:30%;">
+                                    <input type="hidden" name="ActivityID" value="@item.Activityid" />
+                                    <input type="hidden" name="returnURL" value="@ViewBag.returnURL" />
+                                    <input type="hidden" name="status" value="@(item.IsCancelled == true ? "false" : "true")" />
+                                    <button class="btn ff f-22  @(item.IsCancelled? "btn-background-activate" : "btn-background-delete" ) " style=" margin-bottom:2px;  padding:5px;" type="submit"> @(item.IsCancelled == true ? "Genaktiver" : "Deaktiver") </button>
+                                </form>
+                                </div>
+                            </div>
+                        </div>
+                }
+                <div class="vecform">
+                    <div class=" absolute full-Width" style="top:50%;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    // Thomas
+
+    <div class="fixed h-100 full-Width" style="bottom:-3em; background-color:#EBEBEB; border-top: 1px solid black;">
+        <marquee style="color:black;">
+            @foreach (Banner b in ViewBag.Banners)
+            {
+                if (b.IsActive == true)
+                {
+                    <label style="margin-right: 3em;" class="ff f-42" id="lblAnything">@b.BannerDescription</label>
+                }
+            }
+        </marquee>
+    </div>
+</div>
+

@@ -1,0 +1,94 @@
+﻿@model Activity
+
+<head>
+    <script src="https://unpkg.com/sweetalert2@7.1.3/dist/sweetalert2.all.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+
+<tr style="border-bottom: 2px solid #243449;">
+    <td>
+        <p><b>Titel: </b>@Model.Title</p>
+        <p><b>Arrangør(er): </b>@Model.ByWhom</p>
+    </td>
+    <td>
+        <p><b>Tidspunkt: </b>@Model.StartTime - @Model.EndTime</p>
+        <p><b>Dato: </b>@Model.date.ToString("dd-MM-yyyy")</p>
+    </td>
+    <td>
+        <p><b>Afdeling: </b>@Model.Department.DepartmentName</p>
+        <p><b>Lokale(r): </b>
+                @foreach (ActivityRoom r in Model.Rooms)
+                {
+                @(Model.Rooms.IndexOf(r) == Model.Rooms.Count - 1 ? r.room.RoomName : (r.room.RoomName + ", "))
+            }
+        </p>
+    </td>
+    <td>
+        <form asp-action="CancelActivity" method="post">
+            <input type="hidden" name="ActivityID" value="@Model.Activityid" />
+            <input type="hidden" name="status" value="@(Model.IsCancelled == true ? "false" : "true")" />
+            <input name="returnURL" type="hidden" value="@ViewBag.returnURL" />
+            <button class="btn bold ff f-16 full-Width @(Model.IsCancelled ? "btn-foreground-red" : "btn-foreground-green") background-transparant cancel-confirm" type="submit"> @(!Model.IsCancelled ? "Aktiv" : "Aflyst")</button>
+        </form>
+    </td>
+    <td>
+        <form asp-action="EditActivity" method="post">
+            <input type="hidden" name="ActivityID" value="@Model.Activityid" />
+            <input name="returnURL" type="hidden" value="@ViewBag.returnURL" />
+            <button class="btn ff f-16 background-transparant btn-foreground-blue full-Width" type="submit">Rediger</button>
+        </form>
+    </td>
+    <td>
+        <form asp-action="DeleteActivity" method="post" >
+            <input type="hidden" name="ActivityID" value="@Model.Activityid" />
+            <input name="returnURL" type="hidden" value="@ViewBag.returnURL" />
+            <button class="btn ff f-16 background-transparant btn-foreground-red delete-confirm full-Width" type="submit"> Slet </button>
+        </form>
+    </td>
+
+</tr>
+
+<script type="text/javascript">
+        $('.delete-confirm').on('click', function(e) {
+
+        e.preventDefault()
+
+        swal({
+            title: 'Bekræft',
+            text: 'Advarsel: Indholdet vil blive permanent slettet!',
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Slet',
+            confirmButtonColor: '#C6472A',
+            cancelButtonText: 'Fortryd'
+        }).then((result) => {
+            if (result.value) {
+                $(this).closest('form').submit();
+            }
+        });
+    });
+</script>
+
+
+<script type="text/javascript">
+
+    $('.cancel-confirm').on('click', function(e) {
+
+        event.preventDefault()
+
+        swal({
+            title: 'Bekræft',
+            text: 'Du er i færd med at aflyse en aktivitet!',
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Aflys',
+            confirmButtonColor: '#FFC107',
+            cancelButtonText: 'Fortryd'
+        }).then((result) => {
+            if (result.value) {
+                $(this).closest('form').submit();
+            }
+        });
+    });
+
+</script>
